@@ -24,12 +24,10 @@ const connectionRequestSchema = new mongoose.Schema({
     timestamps: true
 });
 
-connectionRequestSchema.pre('save', async function(next) {
-    const connectionRequest = this;
-    if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
+connectionRequestSchema.pre("save", async function () {
+    if (this.fromUserId.equals(this.toUserId)) {
         throw new Error("You cannot send a connection request to yourself");
     }
-    next();
 });
 
 //compound index - because the query become expnsive when records is in millions

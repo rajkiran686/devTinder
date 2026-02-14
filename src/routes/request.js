@@ -16,10 +16,6 @@ requestRouter.post('/request/send/:status/:toUserId', userAuth,async (req, res) 
             throw new Error("Invalid status value. Status can only be 'interested' or 'ignored'");
         }
 
-        if (!mongoose.Types.ObjectId.isValid(toUserId)) {
-            throw new Error("The user you are trying to send a connection request to does not exist");
-        }
-
         const toUserIdExists = await User.findById(toUserId);
 
 
@@ -53,5 +49,37 @@ requestRouter.post('/request/send/:status/:toUserId', userAuth,async (req, res) 
         res.status(400).send('Error: ' + err.message);
     }
 });
+
+requestRouter.post('/request/received/:status/:requestId', userAuth, async (req, res) => {
+    try{
+        const fromUserId = req.user._id;
+        const { status, requestId } = req.params;
+        //validate status value
+        const validStatus = ["accepted", "rejected"];
+        if (!validStatus.includes(status)) {
+            throw new Error("Invalid status value. Status can only be 'accepted' or 'rejected'");
+        }
+
+        //validate requestId
+        //checks - loggedIn user should be toUserId
+        //and that corresponding record status should be 'interested' to be able to accept or reject the request
+        const connectionRequest = await ConnectionRequestModel.findOne({
+            fromUserId: requestId,
+            toUserId: fromUserId,
+            status: "interested",
+        });
+        if (!connectionRequest) {
+            throw new Error("No pending connection request found with the provided requestId for the logged-in user");
+        }
+
+        connectionRequest.status = status;
+        await connectionRequest.save();
+        res.status(200).json({ message: "Connection request " + status, data: connectionRequest });
+    }
+    catch(err){
+        res.status(400).send('Error: ' + err.message);
+    }
+
+})
 
 module.exports = requestRouter;

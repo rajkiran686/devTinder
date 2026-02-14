@@ -10,7 +10,7 @@ const { validateProfileEditData } = require("../utils/validation");
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
     try {
         const user = req.user;
-        res.send("Profile Page of " + user.firstName);
+        res.send("Profile Page of " + user);
     } catch (err) {
         return res.status(401).send("Unauthorized: Invalid token");
     }
