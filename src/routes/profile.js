@@ -11,8 +11,9 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
     try {
         const user = req.user;
         res.send("Profile Page of " + user);
-    } catch (err) {
-        return res.status(401).send("Unauthorized: Invalid token");
+    } 
+    catch (err) {
+        return res.status(401).send("Unauthorized: Invalid token"+err.message);
     }
 });
 
