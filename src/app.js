@@ -33,10 +33,10 @@ app.use((req, res, next) => {
 app.disable("x-powered-by");
 app.use(express.json({ limit: "10kb" })) // middleware to parse JSON request bodies
 app.use(cookieParser()); // middleware to parse cookies
-app.use("/", authRouter);
-app.use("/", profileRouter);
-app.use("/", requestRouter);
-app.use('/', userRouter)
+app.use("/api", authRouter);
+app.use("/api", profileRouter);
+app.use("/api", requestRouter);
+app.use('/api', userRouter)
 
 connectDb()
 .then(()=>{
