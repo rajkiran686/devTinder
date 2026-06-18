@@ -6,6 +6,39 @@ const User = require('../models/user');
 
 const requestRouter = express.Router();
 
+const handleRequestReview = async (req, res) => {
+    try{
+        const loggedInUserId = req.user._id;
+        const { status, requestId } = req.params;
+        const validStatus = ["accepted", "rejected"];
+
+        if (!validStatus.includes(status)) {
+            throw new Error("Invalid status value. Status can only be 'accepted' or 'rejected'");
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(requestId)) {
+            throw new Error("Invalid request id");
+        }
+
+        const connectionRequest = await ConnectionRequestModel.findOne({
+            _id: requestId,
+            toUserId: loggedInUserId,
+            status: "interested",
+        });
+
+        if (!connectionRequest) {
+            throw new Error("No pending connection request found with the provided requestId for the logged-in user");
+        }
+
+        connectionRequest.status = status;
+        await connectionRequest.save();
+        res.status(200).json({ message: "Connection request " + status, data: connectionRequest });
+    }
+    catch(err){
+        res.status(400).send('Error: ' + err.message);
+    }
+};
+
 requestRouter.post('/request/send/:status/:toUserId', userAuth,async (req, res) => {
     try {
         const fromUserId = req.user._id;
@@ -50,36 +83,7 @@ requestRouter.post('/request/send/:status/:toUserId', userAuth,async (req, res) 
     }
 });
 
-requestRouter.post('/request/received/:status/:requestId', userAuth, async (req, res) => {
-    try{
-        const fromUserId = req.user._id;
-        const { status, requestId } = req.params;
-        //validate status value
-        const validStatus = ["accepted", "rejected"];
-        if (!validStatus.includes(status)) {
-            throw new Error("Invalid status value. Status can only be 'accepted' or 'rejected'");
-        }
-
-        //validate requestId
-        //checks - loggedIn user should be toUserId
-        //and that corresponding record status should be 'interested' to be able to accept or reject the request
-        const connectionRequest = await ConnectionRequestModel.findOne({
-            fromUserId: requestId,
-            toUserId: fromUserId,
-            status: "interested",
-        });
-        if (!connectionRequest) {
-            throw new Error("No pending connection request found with the provided requestId for the logged-in user");
-        }
-
-        connectionRequest.status = status;
-        await connectionRequest.save();
-        res.status(200).json({ message: "Connection request " + status, data: connectionRequest });
-    }
-    catch(err){
-        res.status(400).send('Error: ' + err.message);
-    }
-
-})
+requestRouter.post('/request/received/:status/:requestId', userAuth, handleRequestReview);
+requestRouter.post('/request/review/:status/:requestId', userAuth, handleRequestReview);
 
 module.exports = requestRouter;

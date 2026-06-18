@@ -4,7 +4,21 @@ const ConnectionRequestModel = require('../models/connectionRequest');
 const User = require('../models/user');
 
 const userRouter = express.Router();
-const USER_FIELDS = ["firstName","lastName", "age", "gender","photoUrl"]
+const USER_FIELDS = [
+    "firstName",
+    "lastName",
+    "age",
+    "gender",
+    "photoUrl",
+    "photos",
+    "about",
+    "prompts",
+    "skills",
+    "isVerified",
+    "verificationStatus",
+    "visibilityMode",
+    "showVerificationBadge",
+];
 
 //Get all the pending connection requests for the logged in user
 userRouter.get('/user/requests/received',userAuth, async (req, res) => {
@@ -59,7 +73,18 @@ userRouter.get('/feed', userAuth, async (req,res) => {
             hideUsersFromFeed.add(row.toUserId.toString());
         })
 
-        const feedData = await User.find({$and: [{_id: {$nin: Array.from(hideUsersFromFeed)}}, {_id: {$ne: loggedinUser._id}}]}).select(USER_FIELDS).skip(skip).limit(limit);
+        const feedData = await User.find({
+            $and: [
+                { _id: { $nin: Array.from(hideUsersFromFeed) } },
+                { _id: { $ne: loggedinUser._id } },
+                {
+                    $or: [
+                        { visibilityMode: "public" },
+                        { visibilityMode: { $exists: false } },
+                    ],
+                },
+            ],
+        }).select(USER_FIELDS).skip(skip).limit(limit);
 
         res.status(200).json({ message: "List of connections", data: feedData });
     }

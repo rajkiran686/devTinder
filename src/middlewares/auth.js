@@ -1,17 +1,16 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { COOKIE_NAME, JWT_SECRET } = require("../config/env");
 const userAuth = async (req, res, next) => {
     //check if the token is present in the cookies
     try{
-        const { Token } = req.cookies;
-        if (!Token) {
+        const token = req.cookies?.[COOKIE_NAME];
+        if (!token) {
             return res.status(401).send("Unauthorized: No token provided");
         }
-        const decoded = jwt.verify(Token, "Rajkiran@123");
+        const decoded = jwt.verify(token, JWT_SECRET);
         const { _id } = decoded;
-        console.log("User ID from token: ", _id);
         const user = await User.findById(_id);
-        console.log("Authenticated User: ", user);
         if (!user) {
             return res.status(401).send("Unauthorized: User not found");
         }
