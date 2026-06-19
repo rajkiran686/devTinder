@@ -29,7 +29,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
         res.status(200).json(req.user.toSafeObject());
     } 
     catch (err) {
-        return res.status(401).send("Unauthorized: Invalid token"+err.message);
+        return res.status(401).send("Session expired. Please sign in again.");
     }
 });
 
@@ -61,7 +61,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
         });
         
     }catch(err){
-        return res.status(400).send("Error: " + err.message);
+        return res.status(400).send(err.message);
     }
 })
 

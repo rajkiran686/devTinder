@@ -35,7 +35,7 @@ const handleRequestReview = async (req, res) => {
         res.status(200).json({ message: "Connection request " + status, data: connectionRequest });
     }
     catch(err){
-        res.status(400).send('Error: ' + err.message);
+        res.status(400).send(err.message);
     }
 };
 
@@ -79,7 +79,7 @@ requestRouter.post('/request/send/:status/:toUserId', userAuth,async (req, res) 
         await connectionRequest.save();
         res.status(200).json({ message: req.user.firstName+" is "+status+" to "+toUserIdExists.firstName, data: connectionRequest });
     } catch (err) {
-        res.status(400).send('Error: ' + err.message);
+        res.status(400).send(err.message);
     }
 });
 

@@ -44,7 +44,10 @@ authRouter.post("/signUp", async (req, res) => {
         res.status(201).json({ message: "User created successfully", data: user.toSafeObject() });
     } catch (err) {
         console.error("Error creating user:", err);
-        res.status(400).send("Error: " + err.message);
+        if (err.code === 11000) {
+            return res.status(400).send("An account with this email already exists. Please sign in instead.");
+        }
+        res.status(400).send(err.message);
     }
 });
 
@@ -66,7 +69,7 @@ authRouter.post("/login", async (req, res) => {
         res.cookie(COOKIE_NAME, token, authCookieOptions);
         res.status(200).json({ message: "Login successful", data: user.toSafeObject() });
     } catch (err) {
-        res.status(400).send("Error: " + err.message);
+        res.status(400).send(err.message);
     }
 });
 
@@ -80,7 +83,7 @@ authRouter.post("/logout", async (req, res) => {
         });
         res.status(200).json({ message: "Logout successful" });
     } catch (err) {
-        res.status(400).send("Error: " + err.message);
+        res.status(400).send(err.message);
     }
 });
 
