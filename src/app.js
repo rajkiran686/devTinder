@@ -7,6 +7,7 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
+const paymentRouter = require("./routes/payment");
 
 const allowlistedOrigins = new Set(CLIENT_ORIGINS);
 const defaultCorsHeaders = "Content-Type, Authorization";
@@ -37,6 +38,7 @@ app.use("/api", authRouter);
 app.use("/api", profileRouter);
 app.use("/api", requestRouter);
 app.use('/api', userRouter)
+app.use('/api', paymentRouter)
 
 connectDb()
 .then(()=>{

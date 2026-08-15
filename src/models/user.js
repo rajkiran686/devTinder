@@ -103,6 +103,12 @@ const userSchema = new mongoose.Schema(
             default: "public",
         },
         showVerificationBadge: { type: Boolean, default: true },
+        isPremium: { type: Boolean, default: false },
+        membershipType: {
+            type: String,
+            enum: ["silver", "gold", "platinum"],
+            default: null,
+        },
     },
     { timestamps: true },
 );

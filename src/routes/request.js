@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const { userAuth } = require('../middlewares/auth');
 const ConnectionRequestModel = require('../models/connectionRequest');
 const User = require('../models/user');
+const { sendEmail } = require('../utils/sendEmail');
+const { NOTIFICATION_EMAIL } = require("../config/env");
 
 const requestRouter = express.Router();
 
@@ -77,6 +79,15 @@ requestRouter.post('/request/send/:status/:toUserId', userAuth,async (req, res) 
             status
         });
         await connectionRequest.save();
+
+        if (status === 'interested') {
+          const subject = "New Connection Request on devTinder";
+          const body = `<h1>New Connection Request</h1><p>${req.user.firstName} ${req.user.lastName || ''} sent you a connection request on devTinder.</p><p>Check your requests at devTinder to respond.</p>`;
+          if (NOTIFICATION_EMAIL) {
+              sendEmail(NOTIFICATION_EMAIL, subject, body).catch(err => console.error("Email send failed:", err));
+          }
+        }
+
         res.status(200).json({ message: req.user.firstName+" is "+status+" to "+toUserIdExists.firstName, data: connectionRequest });
     } catch (err) {
         res.status(400).send(err.message);

@@ -1,42 +1,7 @@
-const fs = require("fs");
 const path = require("path");
+const dotenv = require("dotenv");
 
-let isLoaded = false;
-
-const loadEnvFile = () => {
-    if (isLoaded) {
-        return;
-    }
-
-    isLoaded = true;
-    const envPath = path.resolve(__dirname, "../../.env");
-
-    if (!fs.existsSync(envPath)) {
-        return;
-    }
-
-    const fileContent = fs.readFileSync(envPath, "utf8");
-    fileContent.split(/\r?\n/).forEach((line) => {
-        const trimmedLine = line.trim();
-        if (!trimmedLine || trimmedLine.startsWith("#")) {
-            return;
-        }
-
-        const separatorIndex = trimmedLine.indexOf("=");
-        if (separatorIndex === -1) {
-            return;
-        }
-
-        const key = trimmedLine.slice(0, separatorIndex).trim();
-        const value = trimmedLine.slice(separatorIndex + 1).trim().replace(/^['"]|['"]$/g, "");
-
-        if (key && process.env[key] === undefined) {
-            process.env[key] = value;
-        }
-    });
-};
-
-loadEnvFile();
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const getEnvVar = (name) => {
     const value = process.env[name];
@@ -59,6 +24,11 @@ module.exports = {
     COOKIE_NAME: "Token",
     DB_URI: getEnvVar("MONGO_URI"),
     JWT_SECRET: getEnvVar("JWT_SECRET"),
+    AWS_REGION: process.env.AWS_REGION || "ap-south-1",
+    AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY || "",
+    AWS_SECRET_KEY: process.env.AWS_SECRET_KEY || "",
+    SES_FROM_EMAIL: process.env.SES_FROM_EMAIL || "",
+    NOTIFICATION_EMAIL: process.env.NOTIFICATION_EMAIL || "",
     CLIENT_ORIGINS,
     NODE_ENV: process.env.NODE_ENV || "development",
     isProduction,
