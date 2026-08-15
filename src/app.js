@@ -32,6 +32,7 @@ app.use((req, res, next) => {
 });
 
 app.disable("x-powered-by");
+app.use("/api/payment/webhook", express.raw({ type: "application/json" }));
 app.use(express.json({ limit: "10kb" })) // middleware to parse JSON request bodies
 app.use(cookieParser()); // middleware to parse cookies
 app.use("/api", authRouter);
