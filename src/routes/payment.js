@@ -101,4 +101,17 @@ paymentRouter.post('/payment/webhook', async(req, res) => {
     }
 });
 
+paymentRouter.get('/premium/verify', userAuth, async(req, res) => {
+    try{
+        const user = req.user;
+        if(!user.isPremium){
+            return res.status(200).json({ message: "User is not a premium member", isPremium: false });
+        }
+        res.status(200).json({ message: "User is a premium member", isPremium: true, membershipType: user.membershipType });
+    }
+    catch(err){
+        res.status(400).send("Error: "+ err.message)
+    }
+});
+
 module.exports = paymentRouter;
